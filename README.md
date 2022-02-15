@@ -8,7 +8,7 @@ Simply create a Terraform project with .tf files using the following format:
 
 ```hcl
 module "vpc" {
-  source = "../terraform-aws-vpc"
+  source = "github.com/rockpenguin/terraform-aws-vpc"
 
   ###############################################################################
   # VPC Config

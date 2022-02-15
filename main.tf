@@ -1,3 +1,6 @@
+################################################################################
+# Provider Config
+################################################################################
 provider "aws" {
   region = var.vpc_region
   default_tags {
@@ -14,7 +17,6 @@ locals {
 ################################################################################
 # VPC
 ################################################################################
-
 resource "aws_vpc" "self" {
 
   cidr_block            = var.vpc_cidr
@@ -60,7 +62,7 @@ resource "aws_subnet" "private" {
   map_public_ip_on_launch = each.value["map_public_ip_on_launch"]
 
   tags = {
-    Name = format("subnet-prv-%s-%s", each.key, local.my_vpc_name)
+    Name = format("prv-%s-%s", each.key, local.my_vpc_name)
   }
 }
 
@@ -73,14 +75,13 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = each.value["map_public_ip_on_launch"]
 
   tags = {
-    Name = format("subnet-pub-%s-%s", each.key, local.my_vpc_name)
+    Name = format("pub-%s-%s", each.key, local.my_vpc_name)
   }
 }
 
 ###############################################################################
 # NAT Gateways
 ###############################################################################
-
 resource "aws_eip" "natgw" {
   count = var.natgw_enabled ? 1 : 0
 
@@ -114,7 +115,7 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.self.id
 
   tags = {
-    Name = format("rtbl-prv-%s", local.my_vpc_name)
+    Name = format("prv-%s", local.my_vpc_name)
   }
 }
 
@@ -131,7 +132,7 @@ resource "aws_route_table" "public" {
   vpc_id = aws_vpc.self.id
 
   tags = {
-    Name = format("rtbl-pub-%s", local.my_vpc_name)
+    Name = format("pub-%s", local.my_vpc_name)
   }
 }
 
@@ -142,4 +143,21 @@ resource "aws_route" "public" {
   destination_cidr_block = each.value["dest_cidr"]
 
   gateway_id = each.value["dest_type"] == "internet_gateway" ? aws_internet_gateway.self.id : null
+}
+
+###############################################################################
+# Routing/Subnet Associations
+###############################################################################
+resource "aws_route_table_association" "private" {
+  for_each = aws_subnet.private
+
+  subnet_id      = aws_subnet.private[each.key].id
+  route_table_id = aws_route_table.private.id
+}
+
+resource "aws_route_table_association" "public" {
+  for_each = aws_subnet.public
+
+  subnet_id      = aws_subnet.public[each.key].id
+  route_table_id = aws_route_table.public.id
 }
