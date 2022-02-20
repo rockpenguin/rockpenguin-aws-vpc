@@ -1,6 +1,6 @@
 # terraform-aws-vpc
 
-Official Rockpenguin Technology Terraform module for basic AWS VPC terraforming.
+Official Rockpenguin Technology Terraform module for basic AWS VPC terraforming.  We wanted a module that provided more customizations and provided options such as NAT EC2s.
 
 ## Usage
 

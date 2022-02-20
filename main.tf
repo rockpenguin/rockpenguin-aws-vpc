@@ -10,8 +10,12 @@ provider "aws" {
   }
 }
 
+################################################################################
+# Local vars
+################################################################################
 locals {
   my_vpc_name = format("%s-%s", var.vpc_name, var.vpc_region)
+
 }
 
 ################################################################################
@@ -160,4 +164,39 @@ resource "aws_route_table_association" "public" {
 
   subnet_id      = aws_subnet.public[each.key].id
   route_table_id = aws_route_table.public.id
+}
+
+###############################################################################
+# Security Groups
+###############################################################################
+resource "aws_security_group" "self" {
+  for_each = var.security_groups
+
+  name        = each.key
+  description = each.key
+  vpc_id      = aws_vpc.self.id
+
+  dynamic ingress {
+    for_each = each.value.ingress
+    content {
+      protocol = ingress.value.protocol
+      from_port = ingress.value.from_port
+      to_port = ingress.value.to_port
+      cidr_blocks = [ingress.value.source_cidr]
+    }
+  }
+
+  dynamic egress {
+    for_each = each.value.egress
+    content {
+      protocol = egress.value.protocol
+      from_port = egress.value.from_port
+      to_port = egress.value.to_port
+      cidr_blocks = [egress.value.source_cidr]
+    }
+  }
+
+  tags = {
+    Name = each.key
+  }
 }
