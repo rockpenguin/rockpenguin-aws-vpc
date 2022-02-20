@@ -56,13 +56,41 @@ variable "routes_public" {
   }))
 }
 
+variable "security_groups" {
+  description = "Security group definitions"
+  type = map(
+    object({
+      ingress = list(
+        object({
+          description = string
+          protocol = string
+          from_port = number
+          to_port = number
+          source_cidr = string
+        })
+      )
+      egress = list(
+        object({
+          description = string
+          protocol = string
+          from_port = number
+          to_port = number
+          source_cidr = string
+        })
+      )
+    })
+  )
+}
+
 variable "subnets_private" {
   description = "Private subnet definitions"
-  type = map(object({
+  type = map(
+    object({
       az_id = string
       cidr = string
       map_public_ip_on_launch = bool
-  }))
+    })
+  )
 }
 
 variable "subnets_public" {
