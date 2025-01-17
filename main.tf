@@ -2,7 +2,7 @@
 # Provider Config
 ################################################################################
 provider "aws" {
-  region = var.vpc_region
+  region = var.aws_region
   default_tags {
     tags = {
       environment = var.env
@@ -14,7 +14,7 @@ provider "aws" {
 # Local vars
 ################################################################################
 locals {
-  my_vpc_name = format("%s-%s", var.vpc_name, var.vpc_region)
+  my_vpc_name = format("%s-%s", var.vpc_name, var.aws_region)
 
 }
 
@@ -169,34 +169,24 @@ resource "aws_route_table_association" "public" {
 ###############################################################################
 # Security Groups
 ###############################################################################
-resource "aws_security_group" "self" {
-  for_each = var.security_groups
 
-  name        = each.key
-  description = each.key
-  vpc_id      = aws_vpc.self.id
+# resource "aws_security_group" "sg" {
+#   for_each = var.security_groups
+#   name = each.key
+#   description = each.value["description"]
+#   vpc_id = aws_vpc.self.id
+# }
 
-  dynamic ingress {
-    for_each = each.value.ingress
-    content {
-      protocol = ingress.value.protocol
-      from_port = ingress.value.from_port
-      to_port = ingress.value.to_port
-      cidr_blocks = [ingress.value.source_cidr]
-    }
-  }
+# resource "aws_vpc_security_group_ingress_rule" "ingress" {
+#   for_each = { for rules_data in local.security_group_ingress_rules : rules_data.sg_rule_name => rules_data }
 
-  dynamic egress {
-    for_each = each.value.egress
-    content {
-      protocol = egress.value.protocol
-      from_port = egress.value.from_port
-      to_port = egress.value.to_port
-      cidr_blocks = [egress.value.source_cidr]
-    }
-  }
+#   security_group_id = aws_security_group.sg[each.value["sg_name"]].id
+#   cidr_ipv4 = each.value["cidr_ipv4"]
+#   ip_protocol = each.value["protocol"]
+#   from_port = each.value["beg_port"]
+#   to_port = each.value["end_port"]
 
-  tags = {
-    Name = each.key
-  }
-}
+#   tags = {
+#     "Name" = each.value["sg_rule_name"]
+#   }
+# }
