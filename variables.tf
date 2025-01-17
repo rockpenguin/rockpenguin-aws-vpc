@@ -1,3 +1,10 @@
+
+variable "aws_region" {
+  description = "AWS Region"
+  type = string
+  default = "us-east-1"
+}
+
 variable "dhcp_options" {
   description = "VPC DHCP Options"
   type = object({
@@ -42,6 +49,7 @@ variable "natgw_enabled" {
 
 variable "routes_private" {
   description = "Private routes definitions"
+  default = {}
   type = map(object({
     dest_cidr = string
     dest_type = string
@@ -56,31 +64,29 @@ variable "routes_public" {
   }))
 }
 
-variable "security_groups" {
-  description = "Security group definitions"
-  type = map(
-    object({
-      ingress = list(
-        object({
-          description = string
-          protocol = string
-          from_port = number
-          to_port = number
-          source_cidr = string
-        })
-      )
-      egress = list(
-        object({
-          description = string
-          protocol = string
-          from_port = number
-          to_port = number
-          source_cidr = string
-        })
-      )
-    })
-  )
-}
+# variable "security_groups" {
+#   description = "Security groups"
+#   type = map(object(
+#     {
+#       description = string
+#       ingress_rules = list(string)
+#       egress_rules = list(string)
+#     }
+#   ))
+#   default = {}
+# }
+
+# variable "security_group_rules" {
+#   description = "Security group rules"
+#   type = map(object(
+#     {
+#       cidr_ipv4 = string
+#       protocol = string
+#       beg_port = string
+#       end_port = string
+#     }
+#   ))
+# }
 
 variable "subnets_private" {
   description = "Private subnet definitions"
@@ -110,10 +116,4 @@ variable "vpc_cidr" {
 variable "vpc_name" {
   description = "VPC name"
   type = string
-}
-
-variable "vpc_region" {
-  description = "VPC Region"
-  type = string
-  default = "us-east-1"
 }

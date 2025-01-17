@@ -7,15 +7,23 @@ Official Rockpenguin Technology Terraform module for basic AWS VPC terraforming.
 Simply create a Terraform project with .tf files using the following format:
 
 ```hcl
-module "vpc" {
-  source = "github.com/rockpenguin/terraform-aws-vpc"
+###############################################################################
+# local variables - not necessary, but can help when using in multiple places
+###############################################################################
+locals {
+  vpc_cidr = "10.123.0.0/16"
+  aws_region = "us-east-2"
+}
+
+module "aws_vpc" {
+  source = "github.com/rockpenguin/rockpenguin-aws-vpc"
 
   ###############################################################################
   # VPC Config
   ###############################################################################
-  vpc_name             = "datacenter-prd"
-  vpc_cidr             = "10.1.0.0/16"
-  vpc_region           = "us-east-1"
+  vpc_name             = "sandbox-vpc-use2"
+  vpc_cidr             = local.vpc_cidr
+  aws_region           = local.aws_region
   enable_dns_hostnames = true
   enable_dns_support   = true
   dhcp_options = {
@@ -26,30 +34,33 @@ module "vpc" {
   natgw_enabled    = true
 
   ###############################################################################
-  # Subnets
+  # Subnets (us-east-2)
+  # us-east-2a (use2-az1)
+  # us-east-2b (use2-az2)
+  # us-east-2c (use2-az3)
   ###############################################################################
   subnets_private = {
-    use1-az4 = {
-      az_id                   = "use1-az4"
-      cidr                    = "10.1.11.0/24"
+    subnet-use2a-prv = {
+      az_id                   = "use2-az1"
+      cidr                    = "10.123.11.0/24"
       map_public_ip_on_launch = false
     }
-    use1-az5 = {
-      az_id                   = "use1-az5"
-      cidr                    = "10.1.12.0/24"
+    subnet-use2b-prv = {
+      az_id                   = "use2-az2"
+      cidr                    = "10.123.12.0/24"
       map_public_ip_on_launch = false
     }
   }
 
   subnets_public = {
-    use1-az4 = {
-      az_id                   = "use1-az4"
-      cidr                    = "10.1.1.0/24"
+    subnet-use2a-pub = {
+      az_id                   = "use2-az1"
+      cidr                    = "10.123.1.0/24"
       map_public_ip_on_launch = true
     }
-    use1-az5 = {
-      az_id                   = "use1-az5"
-      cidr                    = "10.1.2.0/24"
+    subnet-use2b-pub = {
+      az_id                   = "use2-az2"
+      cidr                    = "10.123.2.0/24"
       map_public_ip_on_launch = true
     }
   }
@@ -58,14 +69,15 @@ module "vpc" {
   ###############################################################################
   # Routing
   ###############################################################################
+  # carrier_gateway_id, core_network_arn, egress_only_gateway_id,
+  # gateway_id, instance_id, local_gateway_id, nat_gateway_id,
+  # network_interface_id, transit_gateway_id, vpc_endpoint_id,
+  # vpc_peering_connection_id
+
   routes_private = {
     default = {
       dest_cidr = "0.0.0.0/0"
       dest_type = "nat_gateway"
-    }
-    polo = {
-      dest_cidr = "192.168.1.0/24"
-      dest_type = "network_interface"
     }
   }
   routes_public = {
@@ -74,6 +86,7 @@ module "vpc" {
       dest_type = "internet_gateway"
     }
   }
+
 }
 ```
 
