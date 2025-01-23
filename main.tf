@@ -90,7 +90,7 @@ resource "aws_eip" "natgw" {
   count = var.natgw_enabled ? 1 : 0
 
   public_ipv4_pool = "amazon"
-  vpc = true
+  domain = "vpc"
 
   tags = {
     Name = format("eip-natgw-%s", local.my_vpc_name)
