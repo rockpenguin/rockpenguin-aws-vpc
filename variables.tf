@@ -41,14 +41,48 @@ variable "instance_tenancy" {
   default = "default"
 }
 
-variable "natgw_enabled" {
+variable "nat_gw_enabled" {
   description = "Enable NAT Gateway?"
   type = bool
   default = false
 }
 
-variable "routes_private" {
-  description = "Private routes definitions"
+variable "nat_instance_ami" {
+  description = "AMI ID for NAT instance (required)"
+  type = string
+}
+
+variable "nat_instance_enabled" {
+  description = "Enable NAT instance"
+  type = bool
+  default = false
+}
+
+variable "nat_instance_iam_profile" {
+  description = "IAM instance profile for NAT instance"
+  type = string
+  default = "use_built_in"
+}
+
+variable "nat_instance_key_pair_name" {
+  description = "SSH key pair for NAT instance"
+  type = string
+  default = ""
+}
+
+variable "nat_instance_type" {
+  description = "Instance type for NAT instance (required)"
+  type = string
+}
+
+variable "nat_instance_user_data" {
+  description = "User data for NAT instance provisioning (overrides default)"
+  type = string
+  default = ""
+}
+
+variable "routes_custom_private" {
+  description = "Additional custom private routes"
   default = {}
   type = map(object({
     dest_cidr = string
@@ -56,37 +90,13 @@ variable "routes_private" {
   }))
 }
 
-variable "routes_public" {
-  description = "Public routes definitions"
+variable "routes_custom_public" {
+  description = "Additional custom public routes"
   type = map(object({
     dest_cidr = string
     dest_type = string
   }))
 }
-
-# variable "security_groups" {
-#   description = "Security groups"
-#   type = map(object(
-#     {
-#       description = string
-#       ingress_rules = list(string)
-#       egress_rules = list(string)
-#     }
-#   ))
-#   default = {}
-# }
-
-# variable "security_group_rules" {
-#   description = "Security group rules"
-#   type = map(object(
-#     {
-#       cidr_ipv4 = string
-#       protocol = string
-#       beg_port = string
-#       end_port = string
-#     }
-#   ))
-# }
 
 variable "subnets_private" {
   description = "Private subnet definitions"
